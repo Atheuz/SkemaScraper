@@ -8,6 +8,7 @@
 import re
 import urllib2, lxml.html
 import datetime
+import itertools
 
 class Lecture:
     def __init__(self, index, days, periods, description):
@@ -22,28 +23,6 @@ class Lecture:
 
     def fix_days(self):
         pass
-
-def expand_to_full_day(days, periods, description):
-    expanded = []
-    if days > 1:
-        for i in range(days):
-            temp = []
-            for i in range(periods):
-                temp.append(description)
-            expanded.append(temp)
-    else:
-        temp = []
-        for i in range(periods):
-            temp.append(description)
-        expanded.append(temp)
-
-    for i in expanded:
-        if len(i) == 4:
-            i[-1] = i[-1] +  "FULL"
-            #i.append("FULL")
-
-    #print expanded
-    return expanded
 
 def get_dates():
     dates = []
@@ -64,6 +43,68 @@ def stretches_n_days(days, periods):
 
 def get_html(url):
     return lxml.html.fromstring(urllib2.urlopen(url).read())
+
+def expand_to_full_day(days, periods, week, description):
+    expanded = []
+    if days > 1:
+        for i in range(days):
+            temp = []
+            for i in range(periods):
+                temp.append(description)
+            expanded.append(temp)
+    else:
+        temp = []
+        for i in range(periods):
+            temp.append(description)
+        expanded.append(temp)
+
+    for i in expanded:
+        if len(i) == 4:
+            i.append({"days": days, "periods": periods, "full": True, "week": week})
+        else:
+            i.append({"days": days, "periods": periods, "full": False, "week": week})
+
+    #print expanded
+    return expanded
+
+def group_by_length_of_sublists(l, n):
+    lst = []
+    list_of_lengths = []
+    for i in l:
+        list_of_lengths.append(len(i))
+    kk = []
+    count = 0
+    for i in range(len(list_of_lengths)):
+        if list_of_lengths[i] == n:
+            lst.append(l[i])
+            print lst
+        else:
+            if count == n:
+                lst.append(kk)
+                kk = []
+                count = 0
+                print lst
+            else:
+                count += list_of_lengths[i]
+                kk.append(l[i])
+                if count == n:
+                    lst.append(kk)
+                    print kk
+    return lst
+
+def split_by_weeks(l):
+    curr_week = l[0][-1]["week"]
+    out = []
+    temp = []
+    for i in l:
+        print i[-1]["week"]
+        if i[-1]["week"] == curr_week:
+            temp.append(i)
+        else:
+            out.append(temp)
+            temp = []
+            curr_week = i[-1]["week"]
+    return out            
 
 def get_lectures():
     lectures = []
@@ -154,14 +195,89 @@ def get_lectures():
                         dates = [actual_dates.pop(0)]
                 #l = Lecture(0, , 0, fixed)
                 #lectures_obj.append()"""
-                lectures.extend(expand_to_full_day(days, periods, fixed))
+                lectures.extend(expand_to_full_day(days, periods, week, fixed))
                 #lectures.append(fixed)
     
-    import numpy as np
-    x = np.array([sum(lectures, [])])
-    x = np.reshape(x, (-1,20))
-    for i in x[2]:
-        print "' %s '" % i
+    import pprint
+    
+    pp = pprint.PrettyPrinter(indent=4)
+    
+    _s = 0
+    #print len(lectures)
+    #print sum([len(x) for x in lectures])
+    
+    #for i in lectures:
+        #print i[-1]["week"]   
+        #if len(i) == 4:
+        #    i.append({"days": days, "periods": periods, "full": True})
+        #else:
+        #    i.append({"days": days, "periods": periods, "full": False})
+        #print i
+       #print len(i),
+       # _s += len(i)
+       
+    #print sum([len(x) for x in lectures[:7]])
+
+    #print len(lectures)
+    
+    #x = group_by_length_of_sublists(lectures, 25)
+    #print x
+    #pp.pprint(x[1])
+    
+    groups = []
+    unique_keys = []
+    for k, g in itertools.groupby(lectures, lambda x: x[-1]["week"]):
+        groups.append(list(g))
+        unique_keys.append(k)
+         
+    #for i in groups:
+    #    for j in i:
+    #        print len(j)-1,
+    #    print ''
+    
+    days = {1:       [],
+            2:      [],
+            3:    [],
+            4:     [],
+            5:       []
+            }
+
+    weeks = []
+    
+    for i in groups:
+        n_days = days.copy()
+        for j in range(len(i)):
+            if len(i[j]) == 4+1:
+                if len(n_days[1]) == 0 and j == 1-1:
+                    n_days[1] = i[j]
+                    i[j][-1]["set"] = True
+                elif len(n_days[2]) == 0 and j == 2-1:
+                    n_days[2] = i[j]
+                    i[j][-1]["set"] = True
+                elif len(n_days[3]) == 0 and j == 3-1:
+                    n_days[3] = i[j]
+                    i[j][-1]["set"] = True
+                elif len(n_days[4]) == 0 and j == 4-1:
+                    n_days[4] = i[j]
+                    i[j][-1]["set"] = True
+                elif len(n_days[5]) == 0 and j == 5-1:
+                    n_days[5] = i[j]
+                    i[j][-1]["set"] = True
+            else:
+                i[j][-1]["set"] = False
+        weeks.append(n_days)
+    #pp.pprint(weeks)
+    
+    for i in groups:
+        for j in i:
+            print j
+            print ""
+
+    #import numpy as np
+    #x = np.array([sum(lectures, [])])
+    #x = np.reshape(x, (-1,20))
+    #for i in x[2]:
+    #    print "' %s '" % i
     #split = 0
     #joiner = []
     #weeks = []
