@@ -10,6 +10,18 @@ import urllib2, lxml.html
 import datetime
 import itertools
 
+
+class Week:
+    def __init__(self, week_num):
+        self.week_num   = week_num
+        self.monday     = []
+        self.tuesday    = []
+        self.wednesday  = []
+        self.thursday   = []
+        self.friday     = []
+        self.unknown    = []
+        self.original   = []
+
 class Lecture:
     def __init__(self, index, days, periods, description):
         self.index   = index
@@ -235,43 +247,106 @@ def get_lectures():
     #        print len(j)-1,
     #    print ''
     
-    days = {1:       [],
-            2:      [],
-            3:    [],
-            4:     [],
-            5:       []
-            }
+    days = {1: [],
+            2: [],
+            3: [],
+            4: [],
+            5: []}
 
     weeks = []
     
-    for i in groups:
-        n_days = days.copy()
-        for j in range(len(i)):
-            if len(i[j]) == 4+1:
-                if len(n_days[1]) == 0 and j == 1-1:
-                    n_days[1] = i[j]
-                    i[j][-1]["set"] = True
-                elif len(n_days[2]) == 0 and j == 2-1:
-                    n_days[2] = i[j]
-                    i[j][-1]["set"] = True
-                elif len(n_days[3]) == 0 and j == 3-1:
-                    n_days[3] = i[j]
-                    i[j][-1]["set"] = True
-                elif len(n_days[4]) == 0 and j == 4-1:
-                    n_days[4] = i[j]
-                    i[j][-1]["set"] = True
-                elif len(n_days[5]) == 0 and j == 5-1:
-                    n_days[5] = i[j]
-                    i[j][-1]["set"] = True
-            else:
-                i[j][-1]["set"] = False
-        weeks.append(n_days)
-    #pp.pprint(weeks)
+    week_count = 5
     
     for i in groups:
+        n_days = Week(week_count)
+        n_days.original = i
+        for j in range(len(i)):
+            if len(i[j]) == 4+1:
+                if len(n_days.monday) == 0 and j == 1-1:
+                    i[j][-1]["set"] = True
+                    i[j][-1]["in"] = 1
+                    n_days.monday = i[j]
+                elif len(n_days.tuesday) == 0 and j == 2-1:
+                    i[j][-1]["set"] = True
+                    i[j][-1]["in"] = 2
+                    n_days.tuesday = i[j]
+                elif len(n_days.wednesday) == 0 and j == 3-1:
+                    i[j][-1]["set"] = True
+                    i[j][-1]["in"] = 3
+                    n_days.wednesday = i[j]
+                elif len(n_days.thursday) == 0 and j == 4-1:
+
+                    i[j][-1]["set"] = True
+                    i[j][-1]["in"] = 4
+                    n_days.thursday = i[j]
+                elif len(n_days.friday) == 0 and j == 5-1:
+                    i[j][-1]["set"] = True
+                    i[j][-1]["in"] = 5
+                    n_days.friday = i[j]
+            else:
+                i[j][-1]["set"] = False
+                i[j][-1]["in"] = None
+                n_days.unknown.append(i[j])
+        week_count += 1
+        weeks.append(n_days)
+        
+    
+    
+    #pp.pprint(weeks)
+    
+    """for i in weeks:
+        print i.week_num
+        print i.monday
+        print i.tuesday
+        print i.wednesday
+        print i.thursday
+        print i.friday
+        print i.unknown
+        print "\n"
+    """
+        
+    for i in weeks:
+        monday      = False
+        tuesday     = False
+        wednesday   = False
+        thursday    = False
+        friday      = False
+        if len(i.unknown) == 0:
+            pass
+        else:
+            if len(i.monday) == 4+1:
+                monday = True
+                pass
+            else:
+                print len(i.unknown)
+            if len(i.tuesday) == 4+1:
+                tuesday = True
+                pass
+            else:
+                print len(i.unknown)
+            if len(i.wednesday) == 4+1:
+                wednesday = True
+                pass
+            else:
+                print len(i.unknown)
+            if len(i.thursday) == 4+1:
+                thursday = True
+                pass
+            else:
+                print len(i.unknown)
+            if len(i.friday) == 4+1:
+                friday = True
+                pass
+            else:
+                print len(i.unknown)
+        print ""
+    
+    """for i in groups:
         for j in i:
             print j
-            print ""
+            if not j[-1]["set"]:
+                pass
+        print """""
 
     #import numpy as np
     #x = np.array([sum(lectures, [])])
@@ -315,8 +390,32 @@ def get_lectures():
         #print lectures[i]
     return lectures
 
+def test():
+    url = "http://www.tnb.aau.dk/fg_2011/dat_sw/DAT_SW_2SEM.html"
+    content = get_html(url)
+    trs = content.xpath('//tr/td[@align="center" or @class="style42"][1]')
+    
+    for i in trs:
+        con = i.xpath('.//text()') #i.text_content() # i.text_content() #i.xpath('.//strong')
+        if con:
+            con = ' '.join(con)
+            if len(con) > 2:
+                fixed = re.sub('\xa0', ' ', con)
+                fixed = re.sub('\n', ' ', fixed)
+                fixed = re.sub('\t', ' ', fixed)
+                fixed = re.sub('\r', ' ', fixed)
+                fixed = ''.join([x for x in fixed if x > 0x20])
+                fixed = re.sub('\s+',' ', fixed)
+                fixed = re.sub('\xa0', '', fixed)
+                if len(fixed) < 3:
+                    fixed = ''
+                else:
+                    fixed = fixed[1:].strip()
+        print "'%s'" % fixed
+
 def main():
     get_lectures()
+    #test()
 
 if __name__ == '__main__':
     main()
