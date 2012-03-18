@@ -136,39 +136,6 @@ def get_lectures():
                     for k in range(total_days-1):
                         i.insert(insert_after, j.copy())
                         insert_after += 1
-                        
-                """if total_days == 2:
-                    insert_after = i.index(j)
-                    j["total_periods"] /= 2
-                    j["days"] /= 2
-                    i.insert(insert_after, j.copy())
-                if total_days == 3:
-                    insert_after = i.index(j)
-                    j["total_periods"] /= 3
-                    j["days"] /= 3
-                    i.insert(insert_after, j.copy())
-                    insert_after += 1
-                    i.insert(insert_after, j.copy())
-                if total_days == 4:
-                    insert_after = i.index(j)
-                    j["total_periods"] /= 4
-                    j["days"] /= 4
-                    i.insert(insert_after, j.copy())
-                    insert_after += 1
-                    i.insert(insert_after, j.copy())
-                    insert_after += 1
-                    i.insert(insert_after, j.copy())
-                if total_days == 5:
-                    insert_after = i.index(j)
-                    j["total_periods"] /= 5
-                    j["days"] /= 5
-                    i.insert(insert_after, j.copy())
-                    insert_after += 1
-                    i.insert(insert_after, j.copy())
-                    insert_after += 1
-                    i.insert(insert_after, j.copy())
-                    insert_after += 1
-                    i.insert(insert_after, j.copy())"""
                     
     for i in groups:
         print len(i)
