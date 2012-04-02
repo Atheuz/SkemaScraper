@@ -28,6 +28,7 @@ def extract_tables(table_el):
                 ll += 1
             temp.append(row)
             count += 1
+            
     return table_rows
     
 def clean_text(s):
@@ -93,14 +94,17 @@ def main():
     table_el = content.xpath('//div[@align="center"]/table[@class="style3"]')[0]
     table_rows = extract_tables(table_el)
     
+    
     tt = []
     for i in table_rows:
+        to_drop = i[0].xpath('./td[position() = 1]')[0]
+        to_drop.getparent().remove(to_drop)
         to_drop = i[0].xpath('./td[position() = 1]')[0]
         to_drop.getparent().remove(to_drop)
         tt.append(i)
     for i in tt:
         for j in i:
-            to_drop = j.xpath('./td[@bgcolor="#006699" and @style="width: 41px"]')
+            to_drop = j.xpath('./td[@bgcolor="#006699" and contains(@style, "width: 41px")]')
             if to_drop:  
                 to_drop = to_drop[0]
                 to_drop.getparent().remove(to_drop)
@@ -129,14 +133,10 @@ def main():
     transposed_weeks = [transpose_week(x) for x in weeks]
     
     for i in weeks:
-        print len(i)
+        for j in i:
+            print j
+        print "---"
     
-    for i in transposed_weeks:
-        if len(i) == 6:
-            print i
-    
-    
-    #print transposed_weeks[-2]
     
 
 if __name__ == '__main__':

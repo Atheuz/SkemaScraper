@@ -9,6 +9,7 @@ import re
 import urllib2, lxml.html
 import datetime
 import itertools
+import sys
 
 
 class Week:
@@ -78,6 +79,22 @@ def expand_to_full_day(days, periods, week, description):
 
     #print expanded
     return expanded
+
+def add_information(days, periods, week, description):
+    infod = []
+    full = False
+    if periods * days >= 4:
+        full = True
+    if description == "":
+        description = "Ingen undervisning."
+    infod.append({"days": days,
+                  "periods": periods,
+                  "total_periods": periods*days,
+                  "full": full,
+                  "week": week,
+                  "description": description})
+    
+    return infod
 
 def group_by_length_of_sublists(l, n):
     lst = []
@@ -207,14 +224,19 @@ def get_lectures():
                         dates = [actual_dates.pop(0)]
                 #l = Lecture(0, , 0, fixed)
                 #lectures_obj.append()"""
-                lectures.extend(expand_to_full_day(days, periods, week, fixed))
+                lectures.extend(add_information(days, periods, week, fixed))# (expand_to_full_day(days, periods, week, fixed))
                 #lectures.append(fixed)
     
     import pprint
     
     pp = pprint.PrettyPrinter(indent=4)
     
-    _s = 0
+    #print ""
+    #for i in lectures:
+    #    print i["week"]
+    #sys.exit()
+    
+    #_s = 0
     #print len(lectures)
     #print sum([len(x) for x in lectures])
     
@@ -238,9 +260,20 @@ def get_lectures():
     
     groups = []
     unique_keys = []
-    for k, g in itertools.groupby(lectures, lambda x: x[-1]["week"]):
+    for k, g in itertools.groupby(lectures, lambda x: x["week"]):
         groups.append(list(g))
         unique_keys.append(k)
+    
+    c = 0
+    for i in groups:
+        if i[0]["week"] == 21:
+            for j in i:
+                print j
+            
+            
+    print c
+        
+    sys.exit()
          
     #for i in groups:
     #    for j in i:

@@ -3,7 +3,7 @@
 # Filename      skema.py
 # Author        Lasse Vang Gravesen <gravesenlasse@gmail.com>
 # First edited  13-03-2012 23:01
-# Last edited   18-03-2012 18:30
+# Last edited   18-03-2012 23:09
 
 import re
 import urllib2, lxml.html
@@ -109,6 +109,11 @@ def get_lectures():
                     fixed = fixed[1:].strip()
 
                 lectures.extend(add_information(days, periods, week, fixed))
+                
+    for i in lectures:
+        print i
+        
+    sys.exit()
     
     import pprint
     
@@ -119,7 +124,7 @@ def get_lectures():
     for k, g in itertools.groupby(lectures, lambda x: x["week"]):
         groups.append(list(g))
         unique_keys.append(k)
-        
+     
     weeks = []
     
     week_count = 5    
@@ -137,14 +142,79 @@ def get_lectures():
                         i.insert(insert_after, j.copy())
                         insert_after += 1
                     
-    for i in groups:
+    """for i in groups:
         print len(i)
         for j in i:
             print j
         print ""
             
         week_count += 1
-        weeks.append(n_days)
+        weeks.append(n_days)"""
+    
+    monday      = [0]
+    tuesday     = [0]
+    wednesday   = [0]
+    thursday    = [0]
+    friday      = [0]
+    
+    w = [monday, tuesday, wednesday, thursday, friday]
+    c = 0
+    """for i in groups[0]:
+            #for j in w:
+            #    print j[0],
+            #print ""
+            try:
+                first_empty_index = [x[0] for x in w].index(0)
+                #first_empty_index = map(bool, w).index(0)
+            except ValueError:
+                # This is still wrong, it doesn't work on increments of 1 or 3, so something
+                # Needs to be done so it can work on increments of 1 or 3. It assumes the first
+                # Set is 2, then it finds the first that is not 4 and adds something to that
+                # and because it can be 1 or 2 in that case, it breaks on 1, but not 2.
+                first_empty_index = map(lambda x: x[0] is not 4, w).index(True)   
+            if i["total_periods"] == 4:
+                # First empty found by this:
+                w[first_empty_index].append(i)
+                w[first_empty_index][0] += 4
+            elif i["total_periods"] == 1:
+                w[first_empty_index].append(i)
+                w[first_empty_index][0] += 1
+            elif i["total_periods"] == 2:
+                w[first_empty_index].append(i)
+                w[first_empty_index][0] += 2
+            elif i["total_periods"] == 3:
+                w[first_empty_index].append(i)
+                w[first_empty_index][0] += 3
+            c += 1
+        else:
+            break"""
+    
+    indic = 0
+    for i in groups[0]:
+        if all(map(lambda x: x[0] > 0, w)) == False:
+            if i["total_periods"] == 4:
+                w[indic].append(i)
+                w[indic][0] += 4
+            elif i["total_periods"] == 1:
+                w[indic].append(i)
+                w[indic][0] += 1
+            elif i["total_periods"] == 2:
+                w[indic].append(i)
+                w[indic][0] += 2
+            elif i["total_periods"] == 3:
+                w[indic].append(i)
+                w[indic][0] += 3
+            indic += 1
+        else:
+            break
+    
+    #print w        
+    for i in w:
+        del i[0]
+        print i
+        #for j in i:
+        #    print j["description"] + "\t|\t",
+        #print ""
         
     sys.exit()    
 
