@@ -15,6 +15,7 @@ from lxml.html.clean import Cleaner
 import HTMLParser
 
 def extract_tables(table_el):
+    ll = 0
     count = 0
     temp = []
     table_rows = []
@@ -24,6 +25,7 @@ def extract_tables(table_el):
                 table_rows.append(temp)
                 temp = []
                 count = 0
+                ll += 1
             temp.append(row)
             count += 1
     return table_rows
@@ -90,6 +92,7 @@ def main():
     content = gethtml.get_html(url)
     table_el = content.xpath('//div[@align="center"]/table[@class="style3"]')[0]
     table_rows = extract_tables(table_el)
+    
     tt = []
     for i in table_rows:
         to_drop = i[0].xpath('./td[position() = 1]')[0]
@@ -101,6 +104,7 @@ def main():
             if to_drop:  
                 to_drop = to_drop[0]
                 to_drop.getparent().remove(to_drop)
+                
     
     tags = ['b', 'i', 'u', 'h1', 'h2','h3','br','p','table', 'tr', 'td']
     safe_attrs=clean.defs.safe_attrs
@@ -122,11 +126,17 @@ def main():
         table = list(iter_table_normalized(table_el))
         weeks.append(table)
     
+    transposed_weeks = [transpose_week(x) for x in weeks]
+    
     for i in weeks:
-        for j in transpose_week(i):
-            print j
-        print "---"
-
+        print len(i)
+    
+    for i in transposed_weeks:
+        if len(i) == 6:
+            print i
+    
+    
+    #print transposed_weeks[-2]
     
 
 if __name__ == '__main__':
