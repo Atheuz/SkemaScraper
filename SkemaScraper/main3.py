@@ -124,18 +124,22 @@ def main():
     weeks = []
     
     for i in tt:
-        t = lxml.html.tostring(i, pretty_print=True)
+        t = lxml.html.tostring(i, pretty_print=True)#.replace('&#194;', '')
+        if tt.index(i) == 9:
+            print t
         t = lxml.html.fromstring(t)
         table_el = t.xpath('//table')[0]
         table = list(iter_table_normalized(table_el))
         weeks.append(table)
+        
+        
     
     transposed_weeks = [transpose_week(x) for x in weeks]
     
-    for i in weeks:
-        for j in i:
-            print j
-        print "---"
+    #for i in weeks:
+    #    for j in i:
+    #        print len(j), weeks.index(i), j
+    #    print "---"
     
     
 
