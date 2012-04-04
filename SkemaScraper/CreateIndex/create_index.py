@@ -33,42 +33,41 @@ def make():
         out += '\t\t\t\t<hr />\n'
         out += '\t\t\t</div>\n'
 
-        out += '\t<ul class="tabs">'
-        out += '\t\t<li><a class="active" href="#mandag%s">Ma</a></li>' % str(uge)
-        out += '\t\t<li><a href="#tirsdag%s">Ti</a></li>' % str(uge)
-        out += '\t\t<li><a href="#onsdag%s">On</a></li>' % str(uge)
-        out += '\t\t<li><a href="#torsdag%s">To</a></li>' % str(uge)
-        out += '\t\t<li><a href="#fredag%s">Fr</a></li>' % str(uge)
-        out += '\t</ul>'
+        out += '\t\t\t<ul class="tabs">\n'
+        out += '\t\t\t\t<li><a class="active" href="#mandag%s">Ma</a></li>\n' % str(uge)
+        out += '\t\t\t\t<li><a href="#tirsdag%s">Ti</a></li>\n' % str(uge)
+        out += '\t\t\t\t<li><a href="#onsdag%s">On</a></li>\n' % str(uge)
+        out += '\t\t\t\t<li><a href="#torsdag%s">To</a></li>\n' % str(uge)
+        out += '\t\t\t\t<li><a href="#fredag%s">Fr</a></li>\n' % str(uge)
+        out += '\t\t\t</ul>\n'
 
-        out += '\n'
-        out += '<ul class="tabs-content">\n'
+        out += '\t\t\t<ul class="tabs-content">\n'
         for i in ["mandag", "tirsdag", "onsdag", "torsdag", "fredag"]:
             content = json_file_db["uger"][str(uge)][i]
             if i == 'mandag':
-                out += '<li class="active" id="%s">\n' % (i + str(uge))
+                out += '\t\t<li class="active" id="%s">\n' % (i + str(uge))
             else:
-                out += '<li id="%s">\n' % (i + str(uge))
+                out += '\t\t\t<li id="%s">\n' % (i + str(uge))
 
-            out += '<div class="five columns alpha">\n'
-            out += '<table class="table table-condensed">\n'
-            out += """<thead>
-                        <tr>
-                            <th>%s</th>
-                        </tr>
-                    </thead>\n""" % i.capitalize()
-            out += '<tbody>\n'
+            out += '\t\t\t\t<div class="five columns alpha">\n'
+            out += '\t\t\t\t\t<table class="table table-condensed">\n'
+            out += '\t\t\t\t\t\t<thead>\n'
+            out += '\t\t\t\t\t\t\t<tr>\n'
+            out += '\t\t\t\t\t\t\t<th>%s</th>\n' % i.capitalize()
+            out += '\t\t\t\t\t\t\t</tr>\n'
+            out += '\t\t\t\t\t\t</thead>\n'
+            out += '\t\t\t\t\t\t<tbody>\n'
 
             for j in content:
-                out += "<tr>\n"
-                out += "<td>%s</td>" % j
-                out += "</tr>\n"
+                out += "\t\t\t\t\t\t\t\t<tr>\n"
+                out += "\t\t\t\t\t\t\t\t\t<td>%s</td>\n" % j
+                out += "\t\t\t\t\t\t\t\t</tr>\n"
 
-            out += '</tbody>\n'
+            out += '\t\t\t\t\t\t</tbody>\n'
 
-            out += '</table>\n'
-            out += '</div>\n'
-            out += '</li>\n'
+            out += '\t\t\t\t\t</table>\n'
+            out += '\t\t\t\t</div>\n'
+            out += '\t\t\t</li>\n'
         out += "\t\t</div>"
 
     out += '\t</div>\n'
