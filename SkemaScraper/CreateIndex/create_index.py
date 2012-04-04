@@ -8,6 +8,7 @@
 
 import datetime
 import re
+import lxml.html
 
 try:
     import json;
@@ -74,6 +75,9 @@ def make():
     out += '</div>'
 
     out += open("body_end.html", "r").read()
+    
+    #out = lxml.html.fromstring(out)
+    #out = lxml.html.tostring(out, pretty_print=True)
 
     f = open("index.html", "wb")
     f.write(out.replace('\t', '    ').encode('ISO-8859-1'))
