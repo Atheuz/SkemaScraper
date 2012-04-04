@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<head>
+    <!-- Basic Page Needs
+    ================================================== -->
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <title>Foraars Semesteret for Datalogi og SW 2012</title>
+    <meta name="description" content="skema, andet semester, sw, datalogi, dat, software">
+    <meta name="author" "Lasse Vang Gravesen">
+
+    <!-- Mobile Specific Metas
+    ================================================== -->
+    <meta name="viewport" content="width=device-width, initial-scale=0.77, maximum-scale=0.77">
+
+    <!-- CSS
+    ================================================== -->
+    <link rel="stylesheet" href="stylesheets/base.css">
+    <link rel="stylesheet" href="stylesheets/skeleton.css">
+    <link rel="stylesheet" href="stylesheets/layout.css">
+
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Favicons
+    ================================================== -->
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+
+    <style>
+        .skema {
+            margin-bottom:10em;
+        }
+
+    </style>
+
+    <style>
+        .skema {
+            margin-bottom:10em;
+        }
+
+    </style>
+
+    <script type="text/javascript">
+        Date.prototype.getWeek = function() {
+            var onejan = new Date(this.getFullYear(),0,1);
+            return Math.ceil((((this - onejan) / 86400000) + onejan.getDay()+1)/7);
+        }  
+    </script>
+
+    <script type="text/javascript">
+        var today = new Date();
+        var weekno = today.getWeek();
+        location.href = '?refresh=1#uge' + weekno;
+
+    </script>
+
+</head>
