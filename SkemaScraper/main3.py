@@ -3,7 +3,7 @@
 # Filename      skema.py
 # Author        Lasse Vang Gravesen <gravesenlasse@gmail.com>
 # First edited  02-04-2012 19:03
-# Last edited   02-04-2012 21:37
+# Last edited   04-04-2012 20:31
 
 from pprint import pprint
 import gethtml
@@ -13,12 +13,44 @@ import sys
 import lxml.html.clean as clean
 from lxml.html.clean import Cleaner
 import HTMLParser
+from collections import defaultdict, OrderedDict
+import json
+
+
+# Credit for these functions go to reclosedev, from this Stackoverflow question: 
+# http://stackoverflow.com/questions/9978445/parsing-a-table-with-rowspan-and-colspan
+def table_to_list(table):
+    dct = table_to_2d_dict(table)
+    return list(iter_2d_dict(dct))
+
+def table_to_2d_dict(table):
+    result = defaultdict(lambda : defaultdict(unicode))
+    for row_i, row in enumerate(table.xpath('./tr')):
+        for col_i, col in enumerate(row.xpath('./td|./th')):
+            colspan = int(col.get('colspan', 1))
+            rowspan = int(col.get('rowspan', 1))
+            col_data = col.text_content()
+            while row_i in result and col_i in result[row_i]:
+                col_i += 1
+            for i in range(row_i, row_i + rowspan):
+                for j in range(col_i, col_i + colspan):
+                    result[i][j] = col_data
+    return result
+
+def iter_2d_dict(dct):
+    for i, row in sorted(dct.items()):
+        cols = []
+        for j, col in sorted(row.items()):
+            cols.append(col)
+        yield cols
+
 
 def extract_tables(table_el):
     ll = 0
     count = 0
     temp = []
     table_rows = []
+    cc = []
     for row in table_el.xpath('./tr[position() > 1]'):
         if table_el.index(row) % 5 != 0:
             if count == 4:
@@ -26,9 +58,23 @@ def extract_tables(table_el):
                 temp = []
                 count = 0
                 ll += 1
+            
+            to_drop = row.xpath('./td[position() = 1]')[0]
+            if re.search("Uge \d+", to_drop.text_content()):
+                to_drop.getparent().remove(to_drop)
+            to_drop = row.xpath('./td[position() = 1]')[0]
+            if re.search("\d+:\d+-\d+:\d+", to_drop.text_content()):
+                to_drop.getparent().remove(to_drop)
+            
             temp.append(row)
             count += 1
             
+            if count == 4:
+                table_rows.append(temp)
+                temp = []
+                count = 0
+                ll += 1
+
     return table_rows
     
 def clean_text(s):
@@ -88,26 +134,13 @@ def iter_table_normalized(table, data_extractor=extract_text):
 def transpose_week(week):
     return zip(*week)
 
-def main():
+def generate_weeks():
     url = "http://www.tnb.aau.dk/fg_2011/dat_sw/DAT_SW_2SEM.html"
     content = gethtml.get_html(url)
     table_el = content.xpath('//div[@align="center"]/table[@class="style3"]')[0]
     table_rows = extract_tables(table_el)
-    
-    
-    tt = []
-    for i in table_rows:
-        to_drop = i[0].xpath('./td[position() = 1]')[0]
-        to_drop.getparent().remove(to_drop)
-        to_drop = i[0].xpath('./td[position() = 1]')[0]
-        to_drop.getparent().remove(to_drop)
-        tt.append(i)
-    for i in tt:
-        for j in i:
-            to_drop = j.xpath('./td[@bgcolor="#006699" and contains(@style, "width: 41px")]')
-            if to_drop:  
-                to_drop = to_drop[0]
-                to_drop.getparent().remove(to_drop)
+     
+    tt = [x for x in table_rows]
                 
     
     tags = ['b', 'i', 'u', 'h1', 'h2','h3','br','p','table', 'tr', 'td']
@@ -119,29 +152,49 @@ def main():
     tt = [x.replace("<br>", '\n') for x in tt]
     tt = ["<table>" + x + "</table>" for x in tt]
     tt = [cleaner.clean_html(x) for x in tt]
+    tt = [re.sub("&#194;", " ", x) for x in tt]
+    tt = [re.sub("\s+", " ", x) for x in tt]
     tt = [lxml.html.fromstring(clean_text(x)) for x in tt]
     
     weeks = []
     
     for i in tt:
-        t = lxml.html.tostring(i, pretty_print=True)#.replace('&#194;', '')
-        if tt.index(i) == 9:
-            print t
+        t = lxml.html.tostring(i, pretty_print=True).replace('&#194;', '')
+        t = re.sub("\s+", " ", t)
         t = lxml.html.fromstring(t)
+        to_drop = t.xpath('./tr/td')
         table_el = t.xpath('//table')[0]
-        table = list(iter_table_normalized(table_el))
+        table = table = table_to_list(table_el) #list(iter_table_normalized(table_el))
         weeks.append(table)
-        
-        
+    
+    j = 1
     
     transposed_weeks = [transpose_week(x) for x in weeks]
     
-    #for i in weeks:
-    #    for j in i:
-    #        print len(j), weeks.index(i), j
-    #    print "---"
+    return transposed_weeks
+
+def make_json(weeks):
+    d = {"uger": {}}
+    current_week = 5
+    weekdays = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag"]
+    for i in weeks:
+        d["uger"][str(current_week)] = {}
+        curr_weekday = 0
+        for j in i:
+            d["uger"][str(current_week)][weekdays[curr_weekday]] = []
+            for k in j:
+                if len(k) > 3:
+                    d["uger"][str(current_week)][weekdays[curr_weekday]].append(k.encode('ISO-8859-1'))
+                else:
+                    d["uger"][str(current_week)][weekdays[curr_weekday]].append("Ingen undervisning.".encode('ISO-8859-1'))
+            curr_weekday += 1
+        current_week += 1
     
+    json.dump(d, open("./weeks.json", "w"), sort_keys=True, indent=4)
     
+def main():
+    weeks = generate_weeks()
+    make_json(weeks)
 
 if __name__ == '__main__':
     main()
