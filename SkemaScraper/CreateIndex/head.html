@@ -3,7 +3,7 @@
     <!-- Basic Page Needs
     ================================================== -->
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-    <title>Foraars Semesteret for Datalogi og SW 2012</title>
+    <title>Forårs Semesteret for Datalogi og SW 2012</title>
     <meta name="description" content="skema, andet semester, sw, datalogi, dat, software">
     <meta name="author" "Lasse Vang Gravesen">
 
@@ -50,10 +50,16 @@
     </script>
 
     <script type="text/javascript">
+        /*function gotoAnchor() {
+            var today = new Date();
+            var weekno = today.getWeek();
+            window.location.hash = "#uge" + weekno;
+            }
+        */
         var today = new Date();
         var weekno = today.getWeek();
         location.href = '?refresh=1#uge' + weekno;
-
     </script>
+    <!--<body onload="gotoAnchor();">-->
 
 </head>
