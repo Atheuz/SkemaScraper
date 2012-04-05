@@ -227,7 +227,7 @@ def make_csv(weeks):
             curr_period = 0
             for period in day:
                 if len(period) > 3:
-                    period = period.lstrip().rstrip()
+                    period = period.lstrip().rstrip().encode('ISO-8859-1')
                 else:
                     period = "Ingen forelæsning."
 
