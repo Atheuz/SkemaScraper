@@ -23,7 +23,11 @@ def make():
 
     json_file_db = json.loads(open("../weeks.json", "r").read())
 
-    out += '\t<div class="container">\n'
+    out += '\t<div class="container skema">\n'
+    out += '\t\t<div id="floatingmenu">\n'
+    out += '\t\t\t<a href="#" class="button">&uarr;</a>\n'
+    out += '\t\t\t<a href="javascript:gotoAnchor()" class="button">&darr;</a>\n'
+    out += '\t\t</div>\n'
 
     for uge in range(5,27):
         week_out = json_file_db["uger"][str(uge)]
@@ -60,9 +64,9 @@ def make():
             out += '\t\t\t\t\t\t<tbody>\n'
 
             for j in content:
-                out += "\t\t\t\t\t\t\t\t<tr>\n"
-                out += "\t\t\t\t\t\t\t\t\t<td>%s</td>\n" % j
-                out += "\t\t\t\t\t\t\t\t</tr>\n"
+                out += "\t\t\t\t\t\t\t<tr>\n"
+                out += "\t\t\t\t\t\t\t\t<td>%s</td>\n" % j
+                out += "\t\t\t\t\t\t\t</tr>\n"
 
             out += '\t\t\t\t\t\t</tbody>\n'
 

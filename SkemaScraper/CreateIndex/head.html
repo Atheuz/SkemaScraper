@@ -32,14 +32,12 @@
         .skema {
             margin-bottom:10em;
         }
-
-    </style>
-
-    <style>
-        .skema {
-            margin-bottom:10em;
+        #floatingmenu {
+            position:fixed;
+            z-index:100;
+            top:85%;
+            left:80%;
         }
-
     </style>
 
     <script type="text/javascript">
@@ -50,16 +48,17 @@
     </script>
 
     <script type="text/javascript">
-        /*function gotoAnchor() {
-            var today = new Date();
-            var weekno = today.getWeek();
-            window.location.hash = "#uge" + weekno;
-            }
-        */
         var today = new Date();
         var weekno = today.getWeek();
         location.href = '?refresh=1#uge' + weekno;
     </script>
-    <!--<body onload="gotoAnchor();">-->
+
+    <script type="text/javascript">
+        function gotoAnchor() {
+            var today = new Date();
+            var weekno = today.getWeek();
+            window.location.hash = "#uge" + weekno;
+        }
+    </script>
 
 </head>
