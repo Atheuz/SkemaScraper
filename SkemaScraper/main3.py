@@ -15,6 +15,8 @@ from lxml.html.clean import Cleaner
 import HTMLParser
 from collections import defaultdict, OrderedDict
 import json
+import datetime
+import csv
 
 
 # Credit for these functions go to reclosedev, from this Stackoverflow question: 
@@ -191,10 +193,75 @@ def make_json(weeks):
         current_week += 1
     
     json.dump(d, open("./weeks.json", "w"), sort_keys=True, indent=4)
+
+def get_dates():
+    dates = []
+    curr_date = datetime.date(2012, 1, 30)
+    while True:
+        if curr_date != datetime.date(2012, 6, 29):
+            dates.append(curr_date)
+            curr_date += datetime.timedelta(days=1)
+        else:
+            dates.append(datetime.date(2012, 6, 29))
+            break
+
+    return [x for x in dates if x.isoweekday() in range(1,6)]
+
+def make_csv(weeks):
+    dates = get_dates()
+    dates = [x.strftime("%d-%m-%Y") for x in dates]
+    possible_times = [("8:15", "10:00"),
+                      ("10:15","12:00"),
+                      ("12:30", "14:15"),
+                      ("14:30","16:15")]
+
+    csv_writer = csv.writer(open("weeks.csv", "wb"), delimiter=',', quoting=csv.QUOTE_ALL)
+    csv_writer.writerow(["Subject", "Start Date", "Start Time", "End Date", "End Time", "Description"])
+    
+    
+    to_tuples = []
+    
+    for week in weeks:
+        for day in week:
+            curr_day = dates.pop(0)
+            curr_period = 0
+            for period in day:
+                if len(period) > 3:
+                    period = period.lstrip().rstrip()
+                else:
+                    period = "Ingen forelæsning."
+
+                to_tuples.append((period.encode('ISO-8859-1'),
+                                  curr_day,
+                                  possible_times[curr_period][0],
+                                  curr_day,
+                                  possible_times[curr_period][1],
+                                  period.encode('ISO-8859-1')))
+
+                if curr_period == 3:
+                    curr_period = 0
+                else:
+                    curr_period += 1
+                    
+    csv_writer.writerows(to_tuples)
+    
+    """s = []
+    
+    for line in open("weeks.csv", "r"):
+        print line
+        s.append(line.decode('ISO-8859-1').encode('utf-8'))
+    print len(s)
+    sys.exit()
+    with open("weeks.csv", "a") as w:
+        w.write(''.join(f))
+        w.close()"""
+    
+    
     
 def main():
     weeks = generate_weeks()
-    make_json(weeks)
+    make_csv(weeks)
+    #make_json(weeks)
 
 if __name__ == '__main__':
     main()
